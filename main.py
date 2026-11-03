@@ -1,3 +1,4 @@
+import sqlite3
 import tkinter as tk
 from tkinter import ttk, messagebox
 from GZ_modul import GZDataManager, GZ_today, GZ_validate_date
@@ -544,14 +545,18 @@ class GZApp(tk.Tk):
                 self.db.add_computer(computer)
                 existing_tags.add(asset_tag)
                 added += 1
-            except Exception as e:
-                self.status_bar.show_message(f"Tesztgépek felvétele sikertelen: {e}", is_error=True)
+            except ValueError as e:
+                self.status_bar.show_message(f"Érvénytelen tesztadat: {e}", is_error=True)
+            except sqlite3.Error as e:
+                self.status_bar.show_message(f"Adatbázis-hiba a tesztgép felvételekor: {e}", is_error=True)
 
         self.load_computers_table(tree)
-        if added:
-            self.status_bar.show_message(f"{added} random számítógép hozzáadva!")
+        if added == 10:
+            self.status_bar.show_message("10 random számítógép hozzáadva!")
+        elif added:
+            self.status_bar.show_message(f"{added}/10 tesztgép felvéve – a többi nem fért bele a próbálkozások száma miatt (leltári szám készlet fogytán).", is_error=True)
         else:
-            self.status_bar.show_message("Nem sikerült tesztgépet felvenni!", is_error=True)
+            self.status_bar.show_message("Nem sikerült tesztgépet felvenni! Lehet, hogy kimerült a leltári szám készlet.", is_error=True)
 
     def show_computers_view(self):
         self.clear_view()

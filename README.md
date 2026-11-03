@@ -111,7 +111,7 @@ python main.py
 | `configure_theme()` | ttk stílusok beállítása (táblázat, fejlécek, görgetők) úgy, hogy hover/aktív állapotban se váljon világosra semmi. |
 | `create_menu_bar()` | A két menü felépítése: **Számítógépek** (lista, új gép, selejtezések) és **Kiadások** (aktív, összes). |
 | `show_computers_view()` | A fő nézet: keresőmező, „Összes" alapértelmezésű státuszszűrő, géptáblázat színes Státusz oszloppal és görgetőkkel, valamint a műveleti gombok (Random adatok, Új számítógép, Szerkesztés, Kiadás, Selejtezés). |
-| `generate_random_data(tree)` | 10 véletlenszerű tesztgép felvitele az adatbázisba. A leltári számokat a meglévőkhöz képest ütközésmentesen generálja, az adatbázis-hibákat kezeli és jelzi. |
+| `generate_random_data(tree)` | 10 véletlenszerű tesztgép felvitele az adatbázisba. A leltári számokat a meglévőkhöz képest ütközésmentesen generálja. Ha nem férne be mind a 10 (kimerül a leltári számok készlete), a visszajelzés pontosan jelzi, hogy hány gép került fel (pl. `7/10`). Az érvénytelen adat (`ValueError`) és az adatbázis-hiba (`sqlite3.Error`) külön-külön kezelve. |
 | `load_computers_table(tree, search, status_filter)` | A táblázat feltöltése ID sorrendben: zebra csíkozás és a sor státusza szerinti színezés (`STATUS_TAGS`). |
 | `refresh_computers_view()` | A táblázat újratöltése a jelenlegi szűrőkkel (dialógus bezárása, visszavétel után). |
 | `show_add_computer_dialog()` | Új gép felvételi űrlapja (leltári szám és név kötelező, dátumformátum-ellenőrzéssel). |

@@ -82,12 +82,12 @@ python main.py
 | `get_user_by_id(user_id)` | Egy felhasználó adatainak lekérése ID alapján. |
 | `update_user(user_id, user)` | Felhasználó adatainak módosítása. |
 | `delete_user(user_id)` | Felhasználó törlése – aktív kiadással rendelkező felhasználót nem enged törölni. |
-| `assign_computer(computer_id, user_id, assigned_at=None)` | Gép kiadása felhasználói ID alapján: `assignments` sor jön létre, a gép státusza `Használatban` lesz. |
-| `assign_computer_by_name(computer_id, user_name, assigned_at=None)` | Gép kiadása név alapján: ha a felhasználó még nem szerepel az adatbázisban, automatikusan létrehozza. |
-| `return_computer(assignment_id, returned_at=None)` | Kiadás visszavétele: a `returned_at` dátum kitöltése, a gép újra `Elérhető` státuszú lesz. |
+| `assign_computer(computer_id, user_id, assigned_at=None)` | Gép kiadása felhasználói ID alapján: `assignments` sor jön létre, a gép státusza `Használatban` lesz. **Csak `Elérhető` gép adható ki.** |
+| `assign_computer_by_name(computer_id, user_name, assigned_at=None)` | Gép kiadása név alapján: ha a felhasználó még nem szerepel az adatbázisban, automatikusan létrehozza. **Csak `Elérhető` gép adható ki.** |
+| `return_computer(assignment_id, returned_at=None)` | Kiadás visszavétele: a `returned_at` dátum kitöltése, a gép újra `Elérhető` státuszú lesz. **Már lezárt (visszavett) kiadás nem vehető vissza újra.** |
 | `list_assignments(computer_id=None, user_id=None, active_only=False)` | Kiadások listázása; `active_only=True` esetén csak a még vissza nem vett (aktív) kiadások. |
 | `get_assignment_by_id(assignment_id)` | Egy kiadás sor adatainak lekérése. |
-| `add_disposal(computer_id, disposal_date=None, reason="", notes="")` | Selejtezés rögzítése: `disposals` sor létrehozása, a gép státusza `Selejtezett` lesz (kiadott gépet nem enged selejtezni). |
+| `add_disposal(computer_id, disposal_date=None, reason="", notes="")` | Selejtezés rögzítése: `disposals` sor létrehozása, a gép státusza `Selejtezett` lesz. **Csak `Elérhető` gép selejtezhető.** |
 | `list_disposals(computer_id=None, from_date=None, to_date=None)` | Selejtezések listázása dátumintervallum- és gépszűréssel. |
 | `close()` | Az adatbázis-kapcsolat rendezett lezárása. |
 | `__enter__()` / `__exit__()` | `with` blokkhasználatot tesz lehetővé: a blokk végén automatikusan zárja a kapcsolatot. |
@@ -111,7 +111,7 @@ python main.py
 | `configure_theme()` | ttk stílusok beállítása (táblázat, fejlécek, görgetők) úgy, hogy hover/aktív állapotban se váljon világosra semmi. |
 | `create_menu_bar()` | A két menü felépítése: **Számítógépek** (lista, új gép, selejtezések) és **Kiadások** (aktív, összes). |
 | `show_computers_view()` | A fő nézet: keresőmező, „Összes" alapértelmezésű státuszszűrő, géptáblázat színes Státusz oszloppal és görgetőkkel, valamint a műveleti gombok (Random adatok, Új számítógép, Szerkesztés, Kiadás, Selejtezés). |
-| `generate_random_data(tree)` | 10 véletlenszerű tesztgép felvitele az adatbázisba. |
+| `generate_random_data(tree)` | 10 véletlenszerű tesztgép felvitele az adatbázisba. A leltári számokat a meglévőkhöz képest ütközésmentesen generálja, az adatbázis-hibákat kezeli és jelzi. |
 | `load_computers_table(tree, search, status_filter)` | A táblázat feltöltése ID sorrendben: zebra csíkozás és a sor státusza szerinti színezés (`STATUS_TAGS`). |
 | `refresh_computers_view()` | A táblázat újratöltése a jelenlegi szűrőkkel (dialógus bezárása, visszavétel után). |
 | `show_add_computer_dialog()` | Új gép felvételi űrlapja (leltári szám és név kötelező, dátumformátum-ellenőrzéssel). |

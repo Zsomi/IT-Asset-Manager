@@ -512,30 +512,29 @@ class GZApp(tk.Tk):
         statuses = ["Elérhető", "Használatban", "Javítás alatt"]
         os_list = ["Windows 10", "Windows 11", "Ubuntu 22.04", "Linux Mint", "Debian"]
 
-        for _ in range(10):
+        existing_tags = {comp.get("asset_tag") for comp in self.db.list_computers()}
+        added = 0
+        attempts = 0
+        while added < 10 and attempts < 100:
+            attempts += 1
             asset_tag = f"PC-{random.randint(100, 999):03d}"
-            name = f"Gép {random.randint(1, 100)}"
-            manufacturer = random.choice(manufacturers)
-            model = random.choice(models)
-            serial = f"S{random.randint(100000, 999999)}"
-            processor = random.choice(processors)
-            ram = f"{random.choice([4, 8, 16, 32, 64])}GB"
-            storage = f"{random.choice([128, 256, 512, 1024])}GB SSD"
-            os = random.choice(os_list)
+            if asset_tag in existing_tags:
+                continue
+
             purchase_date = (datetime.now() - timedelta(days=random.randint(30, 365*5))).strftime("%Y-%m-%d")
             status = random.choice(statuses)
             notes = random.choice(["", "Jó állapot", "Garancia alatt", "Frissítve", "Régóta szolgálatban"])
 
             computer = {
                 "asset_tag": asset_tag,
-                "name": name,
-                "manufacturer": manufacturer,
-                "model": model,
-                "serial_number": serial,
-                "processor": processor,
-                "ram": ram,
-                "storage": storage,
-                "operating_system": os,
+                "name": f"Gép {random.randint(1, 100)}",
+                "manufacturer": random.choice(manufacturers),
+                "model": random.choice(models),
+                "serial_number": f"S{random.randint(100000, 999999)}",
+                "processor": random.choice(processors),
+                "ram": f"{random.choice([4, 8, 16, 32, 64])}GB",
+                "storage": f"{random.choice([128, 256, 512, 1024])}GB SSD",
+                "operating_system": random.choice(os_list),
                 "purchase_date": purchase_date,
                 "status": status,
                 "notes": notes
@@ -543,11 +542,16 @@ class GZApp(tk.Tk):
 
             try:
                 self.db.add_computer(computer)
-            except:
-                pass
+                existing_tags.add(asset_tag)
+                added += 1
+            except Exception as e:
+                self.status_bar.show_message(f"Tesztgépek felvétele sikertelen: {e}", is_error=True)
 
         self.load_computers_table(tree)
-        self.status_bar.show_message("10 random számítógép hozzáadva!")
+        if added:
+            self.status_bar.show_message(f"{added} random számítógép hozzáadva!")
+        else:
+            self.status_bar.show_message("Nem sikerült tesztgépet felvenni!", is_error=True)
 
     def show_computers_view(self):
         self.clear_view()

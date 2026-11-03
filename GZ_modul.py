@@ -293,8 +293,8 @@ class GZDataManager:
         user = self.get_user_by_id(user_id)
         if user is None:
             raise ValueError(f"Felhasználó nem található: ID={user_id}")
-        if computer["status"] == "Használatban":
-            raise ValueError(f"A számítógép már kiadva van: {computer['asset_tag']}")
+        if computer["status"] != "Elérhető":
+            raise ValueError(f"Csak elérhető gép adható ki: {computer['asset_tag']} (státusz: {computer['status']})")
         cursor = self.connection.execute(
             """
             INSERT INTO assignments (computer_id, user_id, assigned_at)
@@ -321,8 +321,8 @@ class GZDataManager:
         computer = self.get_computer_by_id(computer_id)
         if computer is None:
             raise ValueError(f"Számítógép nem található: ID={computer_id}")
-        if computer["status"] == "Használatban":
-            raise ValueError(f"A számítógép már kiadva van: {computer['asset_tag']}")
+        if computer["status"] != "Elérhető":
+            raise ValueError(f"Csak elérhető gép adható ki: {computer['asset_tag']} (státusz: {computer['status']})")
         
         user = self.connection.execute(
             "SELECT * FROM users WHERE name = ?", (user_name.strip(),)
@@ -362,6 +362,8 @@ class GZDataManager:
         assignment = self.get_assignment_by_id(assignment_id)
         if assignment is None:
             return False
+        if assignment["returned_at"] is not None:
+            raise ValueError(f"Ez a kiadás már le van zárva (visszavéve: {assignment['returned_at']})")
         self.connection.execute(
             """
             UPDATE assignments SET returned_at = ? WHERE id = ?
@@ -405,8 +407,8 @@ class GZDataManager:
         computer = self.get_computer_by_id(computer_id)
         if computer is None:
             raise ValueError(f"Számítógép nem található: ID={computer_id}")
-        if computer["status"] == "Használatban":
-            raise ValueError(f"A kiadott gépet nem lehet selejtezni: {computer['asset_tag']}")
+        if computer["status"] != "Elérhető":
+            raise ValueError(f"Csak elérhető gép selejtezhető: {computer['asset_tag']} (státusz: {computer['status']})")
         cursor = self.connection.execute(
             """
             INSERT INTO disposals (computer_id, disposal_date, reason, notes)

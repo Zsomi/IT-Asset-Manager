@@ -18,15 +18,16 @@ Az adatok helyi SQLite adatbázisban tárolódnak.
 
 ### Mit kell telepíteni
 
-- **Python 3.12** vagy újabb stabil Python 3 verzió.
-- A grafikus felülethez a **Tkinter** csomag:
+- **Python 3.12** vagy újabb stabil Python 3 verzió – ennél több nem kell.
 
-```powershell
-python -m pip install tkinter
-```
+Minden használt könyvtár a Python standard könyvtárának része, külön csomagot
+nem kell telepíteni (a `pip install` sem szükséges):
 
-Az SQLite, a `logging`, a `datetime` és a `pathlib` a Python standard
-könyvtárának része, azokat nem kell telepíteni.
+- `tkinter` (és benne `ttk`, `messagebox`) – grafikus felület
+- `sqlite3` – adattárolás
+- `logging` – naplózás
+- `datetime` – dátumok
+- `pathlib` – fájlútvonalak
 
 ### A program indítása
 

@@ -199,7 +199,7 @@ class GZDataManager:
             filters.append("status = ?")
             params.append(status)
         where = " WHERE " + " AND ".join(filters) if filters else ""
-        query = f"SELECT * FROM computers{where} ORDER BY asset_tag"
+        query = f"SELECT * FROM computers{where} ORDER BY id"
         rows = self.connection.execute(query, params).fetchall()
         return rows_to_dicts(rows, COMPUTER_FIELDS)
     def add_user(self, user):
@@ -310,6 +310,49 @@ class GZDataManager:
         if cursor.lastrowid is None:
             raise RuntimeError("A kiadás rögzítése nem sikerült.")
         GZ_log_message(f"Számítógép kiadva: {computer['asset_tag']} -> {user['name']}")
+        return cursor.lastrowid
+    
+    def assign_computer_by_name(self, computer_id, user_name, assigned_at=None):
+        if assigned_at is None:
+            assigned_at = GZ_today()
+        if not GZ_validate_date(assigned_at):
+            raise ValueError(f"Érvénytelen dátum: {assigned_at}")
+        
+        computer = self.get_computer_by_id(computer_id)
+        if computer is None:
+            raise ValueError(f"Számítógép nem található: ID={computer_id}")
+        if computer["status"] == "Használatban":
+            raise ValueError(f"A számítógép már kiadva van: {computer['asset_tag']}")
+        
+        user = self.connection.execute(
+            "SELECT * FROM users WHERE name = ?", (user_name.strip(),)
+        ).fetchone()
+        
+        if user is None:
+            cursor = self.connection.execute(
+                "INSERT INTO users (name) VALUES (?)", (user_name.strip(),)
+            )
+            self.connection.commit()
+            user_id = cursor.lastrowid
+            GZ_log_message(f"Felhasználó automatikusan létrehozva: {user_name.strip()}")
+        else:
+            user_id = user[0]
+        
+        cursor = self.connection.execute(
+            """
+            INSERT INTO assignments (computer_id, user_id, assigned_at)
+            VALUES (?, ?, ?)
+            """,
+            (computer_id, user_id, assigned_at),
+        )
+        self.connection.execute(
+            "UPDATE computers SET status = ? WHERE id = ?",
+            ("Használatban", computer_id),
+        )
+        self.connection.commit()
+        if cursor.lastrowid is None:
+            raise RuntimeError("A kiadás rögzítése nem sikerült.")
+        GZ_log_message(f"Számítógép kiadva: {computer['asset_tag']} -> {user_name.strip()}")
         return cursor.lastrowid
     def return_computer(self, assignment_id, returned_at=None):
         if returned_at is None:
